@@ -8,5 +8,8 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
   },
-  server: { port: 5174 },
+    // strictPort: fail loudly rather than drifting to the next free
+  // port. A silent move puts the app outside the API's CORS
+  // allowlist, which surfaces as confusing fetch failures.
+  server: { port: 5174, strictPort: true },
 });

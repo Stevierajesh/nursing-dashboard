@@ -7,13 +7,38 @@ for live escalations. Same stack as the nurse app on purpose: shared `src/lib`
 (`supabase.ts`, `api.ts`, `auth.tsx`, `types.ts`) and one mental model across
 both repos.
 
-## Setup
+## Running it
 
 ```bash
-npm install
-cp .env.example .env.local   # fill in the Supabase URL and ANON key
-npm run dev                  # http://localhost:5174
+make dev        # http://localhost:5174, foreground
+make start      # background
+make stop
+make help       # all targets
 ```
+
+**The API must already be running on :5001.** `make dev` checks and warns you
+if it is not — start it with `cd ../nursing-backend && make start`.
+
+Fresh clone:
+
+```bash
+make install    # npm install + creates .env.local from the example
+```
+Then fill in `VITE_SUPABASE_ANON_KEY`.
+
+## Sign in
+
+**Password for every account: `WorryLayer!2026`**
+
+| Email | Name | Role | Can do |
+|---|---|---|---|
+| `charge@mercygeneral.example` | Priya Raghunathan | charge nurse | board, response queue, acknowledge/assess, metrics, equity |
+| `admin@mercygeneral.example` | Dana Whitmore | admin | all of the above, plus roster, role changes and the escalation SLA |
+
+Use **Priya** for the demo, with Maria open on the nurse app at :5173.
+
+Nurse accounts (`maria@`, `james@`, `lin@`) will sign in but get a screen
+pointing them at the phone app — this console is charge-and-admin only.
 
 ## Screens
 
@@ -61,5 +86,6 @@ than an inverted flip.
 ## Build
 
 ```bash
-npm run build     # ~902 kB raw / ~257 kB gzipped (Recharts is most of it)
+make build        # ~902 kB raw / ~257 kB gzipped (Recharts is most of it)
+make check        # typecheck + lint + build
 ```
