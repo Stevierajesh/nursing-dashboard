@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth";
+import PatientBedAssignment from "../components/PatientBedAssignment";
+import PatientSimulations from "../components/PatientSimulations";
 import type { Role } from "../lib/types";
 import {
   Button,
@@ -26,11 +28,12 @@ interface Assignment {
   patient: { id: string; display_name: string; room: string | null } | null;
 }
 
-const ROLES: Role[] = ["admin", "charge_nurse", "nurse"];
+const ROLES: Role[] = ["admin", "charge_nurse", "nurse", "prescriber"];
 const ROLE_LABELS: Record<Role, string> = {
   admin: "Admin",
   charge_nurse: "Charge nurse",
   nurse: "Nurse",
+  prescriber: "Prescriber",
 };
 
 export default function Admin() {
@@ -137,6 +140,10 @@ export default function Admin() {
           </div>
         </Card>
       )}
+
+      <PatientBedAssignment />
+
+      <PatientSimulations units={units} nurses={users.filter(u => u.role === "nurse")} />
 
       <Card>
         <h2 className="mb-3 font-semibold">

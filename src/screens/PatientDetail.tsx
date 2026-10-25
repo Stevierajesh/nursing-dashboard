@@ -1,7 +1,11 @@
+import ClinicalPriority from "../components/ClinicalPriority";
+import { WORRY_LABELS } from "../lib/types";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import type { PatientDetail as Detail } from "../lib/types";
+import PatientSimulations from "../components/PatientSimulations";
+import PatientBedAssignment from "../components/PatientBedAssignment";
 import NewsTrendChart from "../components/NewsTrendChart";
 import {
   Card,
@@ -30,13 +34,16 @@ export default function PatientDetail() {
   useEffect(() => {
     if (!patientId) return;
     let active = true;
-    api
+    const load = () => api
       .get<Detail>(`/api/v1/patients/${patientId}`)
-      .then((d) => active && setDetail(d))
+      .then((d) => { if (active) { setDetail(d); setError(null); } })
       .catch((e) => active && setError(e.message))
       .finally(() => active && setLoading(false));
+    void load();
+    const timer = setInterval(() => void load(), 15000);
     return () => {
       active = false;
+      clearInterval(timer);
     };
   }, [patientId]);
 
@@ -71,6 +78,7 @@ export default function PatientDetail() {
           {patient.room && (
             <span className="text-ink-400">Room {patient.room}</span>
           )}
+          {patient.bed && <span className="text-ink-400">Bed {patient.bed}</span>}
           <NewsBadge score={risk.latest_news} band={risk.news_band} />
         </div>
         <p className="mt-1 text-sm text-ink-400">
@@ -82,18 +90,19 @@ export default function PatientDetail() {
         </p>
       </div>
 
+      <ClinicalPriority news={detail.news_alert ?? { score: risk.latest_news, band: risk.news_band as "none" | "low" | "medium" | "high", single_red_parameters: [] }} escalation={escalations.find(escalation => ["open", "acknowledged", "auto_escalated"].includes(escalation.status))} />
+      <PatientBedAssignment
+        key={patient.id}
+        patientId={patient.id}
+        onMoved={updated => setDetail(current => current ? { ...current, patient: { ...current.patient, ...updated } } : current)}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
-          label="Fused risk"
-          value={risk.score.toFixed(0)}
+          label="Combined score"
+          value={`${risk.score.toFixed(0)}/100`}
           hint="Vitals + trend + worry"
-          tone={
-            risk.score >= 50
-              ? "critical"
-              : risk.score >= 25
-                ? "warning"
-                : "neutral"
-          }
+          tone="neutral"
         />
         <Stat
           label="NEWS trend"
@@ -116,11 +125,7 @@ export default function PatientDetail() {
           label="Worry signals"
           value={worry_signals.filter((w) => w.level > 0).length}
           hint={
-            risk.worry_level === 2
-              ? "Latest: very worried"
-              : risk.worry_level === 1
-                ? "Latest: slightly worried"
-                : "None active"
+            `Peak: ${WORRY_LABELS[risk.worry_level as keyof typeof WORRY_LABELS].toLowerCase()}`
           }
         />
         {/* The money number, shown only when it is real. Fabricating a lead
@@ -213,6 +218,8 @@ export default function PatientDetail() {
         )}
       </Card>
 
+      <PatientSimulations key={patient.id} patient={patient} />
+
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
           <h2 className="mb-3 font-semibold">Worry timeline</h2>
@@ -226,9 +233,9 @@ export default function PatientDetail() {
                   className="border-l-2 pl-3"
                   style={{
                     borderColor:
-                      w.level === 2
+                      w.level === 4
                         ? "var(--color-critical)"
-                        : w.level === 1
+                        : w.level > 0
                           ? "var(--color-warning)"
                           : "var(--color-ink-600)",
                   }}
@@ -239,11 +246,7 @@ export default function PatientDetail() {
                     </span>
                     <span className="text-ink-200">
                       {" — "}
-                      {w.level === 2
-                        ? "very worried"
-                        : w.level === 1
-                          ? "slightly worried"
-                          : "not worried"}
+                      {WORRY_LABELS[w.level].toLowerCase()}
                     </span>
                   </div>
                   {w.reasons.length > 0 && (

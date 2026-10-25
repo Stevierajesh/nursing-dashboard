@@ -1,3 +1,4 @@
+import { WORRY_LABELS } from "../lib/types";
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import type { ReasonPerformance, ResponseMetrics } from "../lib/dashTypes";
@@ -148,13 +149,7 @@ export default function Metrics() {
               {metrics.by_worry_level.map((r) => (
                 <tr key={r.value} className="border-b border-ink-700/50">
                   <td className="py-2 pr-4">
-                    {r.value === "2"
-                      ? "Very worried"
-                      : r.value === "1"
-                        ? "Slightly worried"
-                        : r.value === "None" || r.value === "null"
-                          ? "No worry (vitals only)"
-                          : r.value}
+                    {WORRY_LABELS[Number(r.value) as keyof typeof WORRY_LABELS] ?? "No worry (vitals only)"}
                   </td>
                   <td className="py-2 pr-4">{r.count}</td>
                   <td className="py-2">

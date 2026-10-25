@@ -1,3 +1,4 @@
+import { WORRY_LABELS } from "../lib/types";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
@@ -143,7 +144,7 @@ export default function Escalations() {
                             </span>
                             <span className="text-ink-200">
                               {" was "}
-                              {w.level === 2 ? "very worried" : "worried"}
+                              {WORRY_LABELS[w.level].toLowerCase()}
                             </span>
                             {w.reasons.length > 0 && (
                               <span className="text-ink-200">

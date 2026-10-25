@@ -1,3 +1,4 @@
+import { WORRY_LABELS } from "../lib/types";
 import {
   CartesianGrid,
   Line,
@@ -146,7 +147,7 @@ export default function NewsTrendChart({
               y={m.news}
               r={7}
               fill={
-                m.signal.level === 2
+                m.signal.level === 4
                   ? "var(--color-critical)"
                   : "var(--color-warning)"
               }
@@ -157,7 +158,7 @@ export default function NewsTrendChart({
               label={
                 i === markers.length - 1
                   ? {
-                      value: m.signal.level === 2 ? "very worried" : "worried",
+                      value: WORRY_LABELS[m.signal.level].toLowerCase(),
                       position: "top",
                       fill: "var(--color-ink-200)",
                       fontSize: 11,
@@ -182,7 +183,7 @@ export default function NewsTrendChart({
                   className="mt-1 size-2 shrink-0 rounded-full"
                   style={{
                     background:
-                      m.signal.level === 2
+                      m.signal.level === 4
                         ? "var(--color-critical)"
                         : "var(--color-warning)",
                   }}
@@ -191,7 +192,7 @@ export default function NewsTrendChart({
                   <span className="font-medium">
                     {m.signal.nurse?.full_name ?? "A nurse"}
                   </span>{" "}
-                  was {m.signal.level === 2 ? "very worried" : "worried"}
+                  was {WORRY_LABELS[m.signal.level].toLowerCase()}
                   {m.signal.reasons.length > 0 && (
                     <>
                       {" — "}

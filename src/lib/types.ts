@@ -1,4 +1,14 @@
-export type Role = "admin" | "charge_nurse" | "nurse";
+export type WorryLevel = 0 | 1 | 2 | 3 | 4;
+
+export const WORRY_LABELS: Record<WorryLevel, string> = {
+  0: "Not worried",
+  1: "Slightly",
+  2: "Somewhat",
+  3: "Worried",
+  4: "Very worried",
+};
+
+export type Role = "admin" | "charge_nurse" | "nurse" | "prescriber";
 
 export type WorryReason =
   | "breathing_off"
@@ -43,10 +53,13 @@ export interface Me {
 }
 
 export interface Vitals {
+  source?: "charted" | "simulation";
+  simulation_run_id?: string | null;
   id: string;
   patient_id: string;
   recorded_at: string;
   heart_rate: number | null;
+  glucose_mg_dl: number | null;
   resp_rate: number | null;
   spo2: number | null;
   systolic_bp: number | null;
@@ -61,7 +74,7 @@ export interface WorrySignal {
   id: string;
   patient_id: string;
   nurse_id: string;
-  level: 0 | 1 | 2;
+  level: WorryLevel;
   reasons: WorryReason[];
   note: string | null;
   capture_ms: number | null;
@@ -89,10 +102,21 @@ export interface Escalation {
   assessed_at: string | null;
 }
 
+export interface NewsAlert {
+  score: number | null;
+  band: "unknown" | "none" | "low" | "single_red" | "medium" | "high";
+  single_red_parameters: string[];
+}
+
 export interface Patient {
+  news_alert?: NewsAlert;
+  is_simulated?: boolean;
+  health_context?: string | null;
+  baseline_vitals?: Partial<Vitals> | null;
   id: string;
   display_name: string;
   room: string | null;
+  bed: string | null;
   unit_id: string | null;
   age_band: string | null;
   sex: string | null;
@@ -127,6 +151,7 @@ export interface WorryResponse {
 }
 
 export interface PatientDetail {
+  news_alert?: NewsAlert;
   patient: Patient;
   vitals: Vitals[];
   worry_signals: WorrySignal[];

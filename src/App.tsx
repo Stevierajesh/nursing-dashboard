@@ -39,16 +39,20 @@ export default function App() {
     );
   }
 
-  // This console is for charge nurses and admins. A nurse who lands here gets
-  // pointed at the right app rather than a blank 403.
-  if (me.user.role === "nurse") {
+  // This console is for charge nurses and admins. Anyone else gets pointed at
+  // the right app rather than a blank 403 -- and gets told what they actually
+  // are: a prescriber used to be greeted as a nurse and sent off to raise
+  // concerns, which is neither their role nor their job.
+  if (me.user.role === "nurse" || me.user.role === "prescriber") {
+    const isPrescriber = me.user.role === "prescriber";
     return (
       <div className="flex min-h-full items-center justify-center p-6">
         <Card className="max-w-md text-center">
           <h1 className="text-lg font-semibold">This is the charge console</h1>
           <p className="mt-2 text-sm text-ink-200">
-            You're signed in as a nurse. The patient-facing app is where you
-            raise concerns — open it on your phone.
+            {isPrescriber
+              ? "You're signed in as a doctor. Approval requests reach you in the Salus app — open it to review what's waiting."
+              : "You're signed in as a nurse. The patient-facing app is where you raise concerns — open it on your phone."}
           </p>
           <button
             onClick={signOut}

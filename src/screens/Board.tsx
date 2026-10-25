@@ -1,3 +1,4 @@
+import ClinicalPriority from "../components/ClinicalPriority";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
@@ -53,7 +54,7 @@ export default function Board() {
     // Fallback refresh. Realtime is the primary path; this covers a dropped
     // websocket without making the board go stale on a ward station that
     // nobody is touching.
-    const timer = setInterval(() => void load(), 45_000);
+    const timer = setInterval(() => void load(), 15_000);
     return () => clearInterval(timer);
   }, [load]);
 
@@ -147,6 +148,7 @@ export default function Board() {
                             Room {p.room}
                           </span>
                         )}
+                        {p.is_simulated && <span className="text-xs text-warning">Simulated</span>}
                       </div>
 
                       {/* The nurse's own words, carried to the responder. This
@@ -207,6 +209,7 @@ export default function Board() {
                     </div>
                   )}
 
+                  <div className="mt-3"><ClinicalPriority news={p.news_alert ?? {score: p.latest_news, band: p.news_band, single_red_parameters: []}} escalation={p.open_escalation} /></div>
                   <div className="mt-3 flex items-center gap-3">
                     <RiskBar patient={p} />
                   </div>
@@ -255,8 +258,8 @@ function RiskBar({ patient }: { patient: BoardPatient }) {
           <span className="h-full bg-ink-600" style={{ width: `${total}%` }} />
         )}
       </div>
-      <span className="w-20 shrink-0 text-right text-xs tabular-nums text-ink-400">
-        risk {total.toFixed(0)}
+      <span className="w-28 shrink-0 text-right text-xs tabular-nums text-ink-400">
+        Combined {total.toFixed(0)}/100
       </span>
     </>
   );

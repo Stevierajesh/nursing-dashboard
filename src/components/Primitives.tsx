@@ -1,3 +1,4 @@
+import { WORRY_LABELS, type WorryLevel } from "../lib/types";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 export function Spinner({ label = "Loading" }: { label?: string }) {
@@ -173,18 +174,18 @@ export function StatusPill({ status }: { status: string }) {
   );
 }
 
-export function WorryBadge({ level }: { level: 0 | 1 | 2 }) {
+export function WorryBadge({ level }: { level: WorryLevel }) {
   if (level === 0) return null;
   const tone =
-    level === 2
+    level === 4
       ? "border-critical/40 bg-critical/15 text-critical"
       : "border-warning/40 bg-warning/15 text-warning";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold ${tone}`}
     >
-      <span aria-hidden>{level === 2 ? "▲" : "△"}</span>
-      {level === 2 ? "Very worried" : "Slightly worried"}
+      <span aria-hidden>{level === 4 ? "▲" : "△"}</span>
+      {WORRY_LABELS[level]}
     </span>
   );
 }
