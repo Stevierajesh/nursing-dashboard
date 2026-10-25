@@ -118,6 +118,7 @@ export interface Patient {
   room: string | null;
   bed: string | null;
   unit_id: string | null;
+  age?: number | null;
   age_band: string | null;
   sex: string | null;
   race_code: string | null;

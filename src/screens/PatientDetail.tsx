@@ -82,7 +82,7 @@ export default function PatientDetail() {
           <NewsBadge score={risk.latest_news} band={risk.news_band} />
         </div>
         <p className="mt-1 text-sm text-ink-400">
-          {[patient.age_band, patient.sex, patient.primary_language]
+          {[patient.age ?? patient.age_band, patient.sex, patient.primary_language]
             .filter(Boolean)
             .join(" · ")}
           {" · admitted "}
